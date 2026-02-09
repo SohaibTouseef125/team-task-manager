@@ -1,0 +1,16 @@
+{
+  "enabledMcpjsonServers": [
+    "context7",
+    "playwright",
+    "figma-remote-mcp",
+    "github",
+    "next-devtools",
+    "shadcn",
+    "tailwindcss-server",
+    "vercel",
+    "stripe",
+    "better-auth",
+    "better-auth-docs"
+  ],
+  "enableAllProjectMcpServers": true
+}
