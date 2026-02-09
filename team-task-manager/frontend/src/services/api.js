@@ -1,13 +1,32 @@
 import axios from 'axios';
 
 // Create axios instance
+// In development, use relative path to leverage Vite proxy
+// In production, use the configured API URL
+const baseURL = process.env.NODE_ENV === 'development'
+  ? '/api'  // Use proxy in development
+  : (import.meta.env.VITE_API_URL || 'http://localhost:8000/api');
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
+  baseURL,
+  // Always include credentials to ensure session cookies are sent
+  // With Vite proxy, this ensures the session cookie is included in proxied requests
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+// Add a request interceptor to potentially handle additional headers if needed
+api.interceptors.request.use(
+  (config) => {
+    // You can add additional logic here if needed
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Request interceptor - no need for auth token since we're using sessions
 // Response interceptor to handle errors
@@ -16,10 +35,15 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized access
-      localStorage.removeItem('isLoggedIn');
-      // Only redirect if we're not already on the login page
-      if (window.location.pathname !== '/login' && !window.location.pathname.includes('/register')) {
-        window.location.href = '/login';
+      // Only clear localStorage and redirect if not on auth endpoints
+      const isAuthEndpoint = error.config.url.includes('/auth/');
+
+      if (!isAuthEndpoint) {
+        localStorage.removeItem('isLoggedIn');
+        // Only redirect if we're not already on the login page
+        if (window.location.pathname !== '/login' && !window.location.pathname.includes('/register')) {
+          window.location.href = '/login';
+        }
       }
     }
     return Promise.reject(error);

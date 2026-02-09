@@ -45,17 +45,6 @@ export const register = async (req, res, next) => {
   }
 };
 
-// Login user
-export const login = async (req, res, next) => {
-  try {
-    // Passport handles authentication
-    // Successful authentication is handled by passport middleware
-    const user = req.user;
-    res.json({ message:` Welcome ${user.name} ✅`,success: true});
-  } catch (error) {
-    next(error);
-  }
-};
 
 // Logout user
 export const logout = (req, res, next) => {
@@ -116,7 +105,7 @@ export const updateProfile = async (req, res, next) => {
     if (company !== undefined) updateData.company = company;
     if (website !== undefined) updateData.website = website;
     if (phone !== undefined) updateData.phone = phone;
-    if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
+    if (req.body.avatar_url !== undefined) updateData.avatar_url = req.body.avatar_url;
 
     // Update the user record
     const [updatedUser] = await db('users')

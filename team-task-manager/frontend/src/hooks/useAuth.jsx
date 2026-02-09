@@ -59,8 +59,12 @@ export const AuthProvider = ({ children }) => {
       // Store login state
       localStorage.setItem('isLoggedIn', 'true');
 
+      // Force the state update to trigger re-render
       setUser(user);
       setIsAuthenticated(true);
+
+      // Small delay to ensure session cookie is processed by browser
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       return { success: true, user };
     } catch (error) {

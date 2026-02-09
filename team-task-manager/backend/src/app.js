@@ -18,6 +18,10 @@ dotenv.config();
 
 const app = express();
 
+// Trust proxy for Railway/Vercel deployments and local development with Vite proxy
+// This helps with proper detection of HTTPS behind proxies
+app.set('trust proxy', 1);
+
 // Logging middleware
 app.use(requestLogger);
 
@@ -39,13 +43,34 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration
-app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+const corsOptions = {
   credentials: true,
   methods: ["GET","POST","PUT","DELETE","OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   exposedHeaders: ["Content-Range", "X-Content-Range"]
-}));
+};
+
+// Allow multiple origins depending on environment
+if (process.env.NODE_ENV === 'production') {
+  // In production, allow both the deployed frontend URL and localhost for development
+  corsOptions.origin = [
+    process.env.FRONTEND_URL || '',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000', // Common alternative dev port
+    ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
+  ].filter(Boolean); // Remove empty strings
+} else {
+  // In development, allow both the configured URL and localhost
+  corsOptions.origin = [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:3000'
+  ].filter(Boolean);
+}
+
+app.use(cors(corsOptions));
 
 // Session middleware
 app.use(session);
