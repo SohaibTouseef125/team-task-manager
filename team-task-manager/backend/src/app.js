@@ -19,9 +19,11 @@ dotenv.config();
 const app = express();
 
 // Trust proxy for Railway/Vercel deployments
-// This helps with proper detection of HTTPS behind proxies in production
-// Also helps in local development when needed
-app.set('trust proxy', 1);
+// This is important when the app is behind a reverse proxy in production
+// For proper detection of HTTPS behind proxies
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1);
+}
 
 // Logging middleware
 app.use(requestLogger);

@@ -10,7 +10,7 @@ const baseURL = process.env.NODE_ENV === 'development'
 const api = axios.create({
   baseURL,
   // Include credentials to ensure session cookies are sent
-  // This is needed for session-based authentication in both environments
+  // Needed for cross-origin requests in production and same-origin in development
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

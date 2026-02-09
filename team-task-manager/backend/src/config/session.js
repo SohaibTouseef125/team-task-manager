@@ -12,13 +12,12 @@ const sessionOptions = {
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     httpOnly: true,
-    // For local development compatibility, always allow insecure (HTTP) connections
-    // This is safe since it's only for development
-    // In production, this will be overridden by the trust proxy and req.secure detection
-    secure: false, // Changed to always false for development compatibility
+    // Use secure cookies in production (HTTPS) and insecure in development (HTTP)
+    // With trust proxy, req.secure will be properly detected based on x-forwarded-proto header
+    secure: process.env.NODE_ENV === 'production',
+    // Use 'none' for production to allow cross-origin requests with secure cookies
     // Use 'lax' for development to work with HTTP
-    // In production with trust proxy, this will work with HTTPS
-    sameSite: 'lax',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
     // Path should be root to make cookie available for all routes
     path: '/',
   }
