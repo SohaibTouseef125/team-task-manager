@@ -18,8 +18,9 @@ dotenv.config();
 
 const app = express();
 
-// Trust proxy for Railway/Vercel deployments and local development with Vite proxy
-// This helps with proper detection of HTTPS behind proxies
+// Trust proxy for Railway/Vercel deployments
+// This helps with proper detection of HTTPS behind proxies in production
+// Also helps in local development when needed
 app.set('trust proxy', 1);
 
 // Logging middleware
@@ -52,14 +53,22 @@ const corsOptions = {
 
 // Allow multiple origins depending on environment
 if (process.env.NODE_ENV === 'production') {
-  // In production, allow both the deployed frontend URL and localhost for development
-  corsOptions.origin = [
+  // In production, allow the deployed frontend URL
+  // Also allow localhost for development/testing purposes
+  const allowedOrigins = [
     process.env.FRONTEND_URL || '',
     'http://localhost:5173',
     'http://127.0.0.1:5173',
     'http://localhost:3000', // Common alternative dev port
     ...(process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [])
   ].filter(Boolean); // Remove empty strings
+
+  // If we're in production but no FRONTEND_URL is set, we might be missing the origin
+  if (process.env.NODE_ENV === 'production' && !process.env.FRONTEND_URL) {
+    console.warn('WARNING: FRONTEND_URL is not set in production. This may cause CORS issues.');
+  }
+
+  corsOptions.origin = allowedOrigins;
 } else {
   // In development, allow both the configured URL and localhost
   corsOptions.origin = [

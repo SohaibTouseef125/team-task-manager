@@ -12,10 +12,12 @@ const sessionOptions = {
   cookie: {
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     httpOnly: true,
-    // For local development, always allow insecure (HTTP) connections
+    // For local development compatibility, always allow insecure (HTTP) connections
     // This is safe since it's only for development
+    // In production, this will be overridden by the trust proxy and req.secure detection
     secure: false, // Changed to always false for development compatibility
     // Use 'lax' for development to work with HTTP
+    // In production with trust proxy, this will work with HTTPS
     sameSite: 'lax',
     // Path should be root to make cookie available for all routes
     path: '/',

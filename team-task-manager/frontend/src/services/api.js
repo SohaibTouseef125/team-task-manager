@@ -9,8 +9,8 @@ const baseURL = process.env.NODE_ENV === 'development'
 
 const api = axios.create({
   baseURL,
-  // Always include credentials to ensure session cookies are sent
-  // With Vite proxy, this ensures the session cookie is included in proxied requests
+  // Include credentials to ensure session cookies are sent
+  // This is needed for session-based authentication in both environments
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
